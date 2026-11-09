@@ -11,7 +11,10 @@ The research closed on 13 October 2026; publication adds no experiment.
 
 The page is plain HTML, CSS and JavaScript with local fonts and figure data.
 Branding uses the official Sarvam wordmark and the supplied Sarvam design kit’s
-Season Mix and Matter typefaces; asset provenance is recorded under `assets/`.
+Matter typefaces; asset provenance is recorded under `assets/`.
+A single stylesheet defines the centered reading column, shared figure layout
+and responsive typography. Figure controls and exact-value readouts remain
+available on desktop, keyboard and touch screens.
 There are no runtime services, tracking scripts or external font requests.
 The concise companion technical synthesis is available as `report.pdf`,
 `report.html` and `report.md`. The article itself includes the context needed

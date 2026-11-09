@@ -17,6 +17,19 @@
     return n;
   }
   function add(parent, tag, attrs = {}, text) { const n = svgNode(tag, attrs, text); parent.appendChild(n); return n; }
+  function chartWidth(host) { return Math.max(200, Math.round(host.clientWidth || 300)); }
+  function wrappedText(parent, attrs, value, maxWidth, lineHeight = 16) {
+    const text = add(parent, 'text', attrs);
+    let line = [], span = add(text, 'tspan', {x: attrs.x, dy: 0});
+    String(value).split(/\s+/).forEach(word => {
+      line.push(word); span.textContent = line.join(' ');
+      if (line.length > 1 && span.getComputedTextLength() > maxWidth) {
+        line.pop(); span.textContent = line.join(' ');
+        line = [word]; span = add(text, 'tspan', {x: attrs.x, dy: lineHeight}, word);
+      }
+    });
+    return text;
+  }
   function activate(attribute, value) {
     $$(`[${attribute}]`).forEach(b => { const on = b.getAttribute(attribute) === String(value); b.classList.toggle('selected', on); b.setAttribute('aria-pressed', String(on)); });
   }
@@ -91,23 +104,29 @@
     $('#layer-detail').innerHTML = `<span class="mono">LAYER ${String(i + 1).padStart(2, '0')} / ${state.architecture === 'a1' ? '24' : '49'}</span><div><h4>${title}</h4><p>${body}</p></div>`;
   }
   function renderGate() {
-    const host = $('#gate-diagram'), w = Math.max(280, host.clientWidth), h = 162;
+    const host = $('#gate-diagram'), w = chartWidth(host), stacked = w < 520, h = stacked ? 292 : 170;
     host.replaceChildren();
     const svg = add(host, 'svg', {viewBox: `0 0 ${w} ${h}`, role: 'img', 'aria-label': state.gate === 'forget' ? 'Forget gate modifies attention scores before the weighted readout' : 'Output gate scales the attention output'});
-    const pad = w < 500 ? 17 : 35, gap = w < 500 ? 21 : 45, bw = (w - 2 * pad - 2 * gap) / 3, y = 70, bh = 51;
+    const pad = 20, gap = 28, bw = stacked ? Math.min(240, w - 24) : (w - 2 * pad - 2 * gap) / 3;
     const names = [['Attention', 'scores'], ['Weighted', 'values'], ['Layer', 'output']];
     names.forEach((lines, i) => {
-      const x = pad + i * (bw + gap), selected = state.gate === 'forget' ? i === 0 : i === 2;
+      const x = stacked ? (w - bw) / 2 : pad + i * (bw + gap), y = stacked ? 10 + i * 96 : 78, bh = stacked ? 72 : 62;
+      const selected = state.gate === 'forget' ? i === 0 : i === 2;
       add(svg, 'rect', {x, y, width: bw, height: bh, fill: selected ? '#e8c7b5' : '#f6f4ee', stroke: selected ? colors.a1 : '#c9c8bb'});
-      lines.forEach((t, j) => add(svg, 'text', {x: x + bw / 2, y: y + 22 + j * 15, 'text-anchor': 'middle', fill: '#272924', style: `font-size:${w < 500 ? 9 : 11}px`}, t));
+      if (stacked) {
+        add(svg, 'text', {x: x + bw / 2, y: y + (selected ? 55 : 42), 'text-anchor': 'middle', fill: '#272924', class: 'diagram-label'}, lines.join(' '));
+      } else {
+        lines.forEach((t, j) => add(svg, 'text', {x: x + bw / 2, y: y + 26 + j * 18, 'text-anchor': 'middle', fill: '#272924', class: 'diagram-label'}, t));
+      }
       if (i < 2) {
-        const x1 = x + bw + 4, x2 = x + bw + gap - 5;
-        add(svg, 'path', {d: `M${x1},${y + bh / 2}H${x2}m-4,-4 4,4 -4,4`, fill: 'none', stroke: '#85877b', 'stroke-width': 1});
+        const path = stacked ? `M${w / 2},${y + bh + 4}v16m-4,-4 4,4 4,-4` : `M${x + bw + 4},${y + bh / 2}h${gap - 9}m-4,-4 4,4 -4,4`;
+        add(svg, 'path', {d: path, fill: 'none', stroke: '#85877b', 'stroke-width': 1});
       }
       if (selected) {
-        add(svg, 'rect', {x: x + bw / 2 - 35, y: 23, width: 70, height: 26, fill: colors.a1});
-        add(svg, 'text', {x: x + bw / 2, y: 40, 'text-anchor': 'middle', fill: '#fff', style: 'font-size:9px'}, state.gate === 'forget' ? 'FORGET GATE' : 'OUTPUT GATE');
-        add(svg, 'path', {d: `M${x + bw / 2},49V65m-4,-4 4,4 4,-4`, fill: 'none', stroke: colors.a1});
+        const gy = stacked ? y + 8 : 23;
+        add(svg, 'rect', {x: x + bw / 2 - 60, y: gy, width: 120, height: 28, fill: colors.a1});
+        add(svg, 'text', {x: x + bw / 2, y: gy + 19, 'text-anchor': 'middle', fill: '#fff', class: 'gate-label'}, state.gate === 'forget' ? 'FORGET GATE' : 'OUTPUT GATE');
+        if (!stacked) add(svg, 'path', {d: `M${x + bw / 2},51V73m-4,-4 4,4 4,-4`, fill: 'none', stroke: colors.a1});
       }
     });
     $('#gate-description').textContent = state.gate === 'forget' ? 'The forget gate modifies attention scores, changing how much earlier information can be read. The tested MoE arm lost long-range passkey retrieval during extension.' : 'The output gate scales the attention result. This was the gate carried into the A1 recipe after the MoE comparison.';
@@ -122,17 +141,19 @@
   }
   function lineChart(host, series, opt) {
     if (!host) return;
-    const width = Math.max(280, Math.round(host.clientWidth)), small = width < 500;
-    const height = opt.height || (small ? 300 : 350);
-    const m = {l: small ? 43 : 57, r: small ? 18 : 31, t: opt.marker ? 54 : 36, b: 56};
-    const plotW = width - m.l - m.r, plotH = height - m.t - m.b;
+    const width = chartWidth(host), small = width < 500;
+    const height = Math.max(opt.height || 350, small ? 320 : 0);
     const xDomain = opt.xDomain;
-    const xFun = opt.logX ? x => Math.log2(x) : x => x;
-    const x = v => m.l + (xFun(v) - xFun(xDomain[0])) / (xFun(xDomain[1]) - xFun(xDomain[0])) * plotW;
     const visibleSeries = series.map(s => ({...s, points: s.points.filter(p => p.x >= xDomain[0] && p.x <= xDomain[1])}));
     const ys = visibleSeries.flatMap(s => s.points.map(p => p.y));
     const [y0, y1, step] = opt.yDomain || domain(ys);
     const tickDigits = Math.min(4, (step.toFixed(6).replace(/0+$/, "").split(".")[1] || "").length);
+    const yFormat = opt.yFormat || (tick => fmt(tick, tickDigits));
+    const labelWidth = Math.max(yFormat(y0).length, yFormat(y1).length) * 7.5;
+    const m = {l: Math.max(48, labelWidth + 12), r: small ? 14 : 24, t: opt.marker ? (small ? 88 : 70) : 40, b: small ? 88 : 70};
+    const plotW = width - m.l - m.r, plotH = height - m.t - m.b;
+    const xFun = opt.logX ? x => Math.log2(x) : x => x;
+    const x = v => m.l + (xFun(v) - xFun(xDomain[0])) / (xFun(xDomain[1]) - xFun(xDomain[0])) * plotW;
     const y = v => m.t + plotH - (v - y0) / (y1 - y0) * plotH;
     host.replaceChildren(); host.style.minHeight = `${height}px`;
     const svg = add(host, 'svg', {viewBox: `0 0 ${width} ${height}`, role: 'img', tabindex: '0', 'aria-label': `${opt.title}. Use left and right arrows to inspect measured points.`, 'aria-describedby': opt.readout});
@@ -141,22 +162,27 @@
     if (opt.marker) {
       const mx = x(opt.marker.x);
       add(svg, 'rect', {x: mx, y: m.t, width: Math.max(0, width - m.r - mx), height: plotH, fill: '#eaf0e9'});
-      add(svg, 'line', {x1: mx, x2: mx, y1: m.t - 14, y2: m.t + plotH, stroke: '#8d9d8c', 'stroke-dasharray': '3 4'});
-      add(svg, 'text', {x: mx + 7, y: m.t - 18, class: 'axis-note', style: `font-size:${small ? 7 : 8}px`}, '4K TRAINING WINDOW · REFERENCE');
+      add(svg, 'line', {x1: mx, x2: mx, y1: m.t - 12, y2: m.t + plotH, stroke: '#8d9d8c', 'stroke-dasharray': '3 4'});
+      const markerLabelWidth = 2 * Math.min(mx - m.l, width - m.r - mx);
+      wrappedText(svg, {x: mx, y: 40, 'text-anchor': 'middle', class: 'axis-note'}, '4K training window · reference', markerLabelWidth);
     }
     for (let tick = y0, n = 0; tick <= y1 + step / 10 && n < 20; tick += step, n++) {
       const py = y(tick);
       add(svg, 'line', {x1: m.l, y1: py, x2: width - m.r, y2: py, class: 'chart-grid'});
-      add(svg, 'text', {x: m.l - 10, y: py + 3, 'text-anchor': 'end'}, opt.yFormat ? opt.yFormat(tick) : fmt(tick, tickDigits));
+      add(svg, 'text', {x: m.l - 10, y: py + 4, 'text-anchor': 'end'}, yFormat(tick));
     }
     add(svg, 'text', {x: m.l, y: 15, class: 'axis-title'}, opt.yTitle || 'CROSS-ENTROPY · NATS');
     add(svg, 'line', {x1: m.l, y1: height - m.b, x2: width - m.r, y2: height - m.b, class: 'baseline'});
+    const tickRightEdges = [-Infinity, -Infinity];
     opt.xTicks.forEach((tick, i) => {
       const px = x(tick);
       add(svg, 'line', {x1: px, y1: height - m.b, x2: px, y2: height - m.b + 5, class: 'baseline'});
-      add(svg, 'text', {x: px, y: height - m.b + 19, 'text-anchor': i === 0 ? 'start' : i === opt.xTicks.length - 1 ? 'end' : 'middle'}, opt.xFormat(tick));
+      const label = add(svg, 'text', {x: px, y: height - m.b + 22, 'text-anchor': i === 0 ? 'start' : i === opt.xTicks.length - 1 ? 'end' : 'middle'}, opt.xFormat(tick));
+      const bounds = label.getBBox(), row = bounds.x >= tickRightEdges[0] + 8 ? 0 : 1;
+      label.setAttribute('y', height - m.b + 22 + row * 16);
+      tickRightEdges[row] = bounds.x + bounds.width;
     });
-    add(svg, 'text', {x: m.l + plotW / 2, y: height - 10, 'text-anchor': 'middle', class: 'axis-title'}, opt.xTitle);
+    wrappedText(svg, {x: width / 2, y: height - 27, 'text-anchor': 'middle', class: 'axis-title'}, opt.xTitle, width - 20);
     visibleSeries.forEach(s => {
       add(svg, 'path', {d: s.points.map((p, i) => `${i ? 'L' : 'M'}${x(p.x).toFixed(2)},${y(p.y).toFixed(2)}`).join(' '), class: 'plot-line', stroke: colors[s.id], 'stroke-dasharray': s.id === 'hysparse2' ? '5 5' : ''});
       if (s.points.length <= 8) s.points.forEach(p => add(svg, s.id === 'hysparse2' ? 'rect' : 'circle', s.id === 'hysparse2' ? {x: x(p.x) - 3.5, y: y(p.y) - 3.5, width: 7, height: 7, fill: '#fcfbf8', stroke: colors[s.id], 'stroke-width': 2} : {cx: x(p.x), cy: y(p.y), r: 3.5, fill: '#fcfbf8', stroke: colors[s.id], 'stroke-width': 2}));
@@ -176,13 +202,18 @@
       readout.innerHTML = `<span class="readout-coordinate">${esc(coordinate)}</span>` + chosen.map(s => `<span class="readout-value"><i class="swatch ${s.id === 'a1' ? 'a1' : 'hy dashed'}"></i>${labels[s.id]} <b>${fmt(s.point.y, 5)}</b></span>`).join('');
       tooltip.replaceChildren();
       if (showTooltip) {
-        const tw = small ? 158 : 178, th = 68, tx = Math.max(m.l, Math.min(width - m.r - tw, px + (px > width * .62 ? -tw - 13 : 13)));
-        const ty = Math.max(m.t + 5, Math.min(height - m.b - th - 4, Math.min(...chosen.map(s => y(s.point.y))) - th - 12));
-        add(tooltip, 'rect', {x: tx, y: ty, width: tw, height: th, rx: 1, fill: '#272924'});
-        add(tooltip, 'text', {x: tx + 10, y: ty + 16, fill: '#c9cabe', style: 'fill:#c9cabe;font-size:8px'}, coordinate.length > (small ? 28 : 32) ? coordinate.slice(0, small ? 26 : 30) + '…' : coordinate);
+        const tw = Math.min(250, width - 16);
+        const heading = wrappedText(tooltip, {x: 12, y: 20, fill: '#d8dacf', class: 'tooltip-heading'}, coordinate, tw - 24);
+        const rowY = 36 + heading.childElementCount * 16, th = rowY + (chosen.length - 1) * 22 + 14;
+        const tx = Math.max(8, Math.min(width - tw - 8, px + (px > width * .6 ? -tw - 12 : 12)));
+        const ty = Math.max(m.t + 4, Math.min(height - m.b - th - 4, Math.min(...chosen.map(s => y(s.point.y))) - th - 12));
+        tooltip.setAttribute('transform', `translate(${tx},${ty})`);
+        const background = add(tooltip, 'rect', {x: 0, y: 0, width: tw, height: th, rx: 2, fill: '#272924'});
+        tooltip.insertBefore(background, heading);
         chosen.forEach((s, j) => {
-          add(tooltip, 'line', {x1: tx + 10, x2: tx + 20, y1: ty + 33 + j * 18, y2: ty + 33 + j * 18, stroke: s.id === 'a1' ? '#ef9c77' : '#8bc4b3', 'stroke-width': 2});
-          add(tooltip, 'text', {x: tx + 27, y: ty + 36 + j * 18, style: 'fill:#f6f4ee;font-size:9px'}, `${labels[s.id]}  ${fmt(s.point.y, 5)}`);
+          add(tooltip, 'line', {x1: 12, x2: 24, y1: rowY - 4 + j * 22, y2: rowY - 4 + j * 22, stroke: s.id === 'a1' ? '#ef9c77' : '#8bc4b3', 'stroke-width': 2, 'stroke-dasharray': s.id === 'hysparse2' ? '4 3' : ''});
+          add(tooltip, 'text', {x: 32, y: rowY + j * 22, fill: '#f6f4ee', class: 'tooltip-label'}, labels[s.id]);
+          add(tooltip, 'text', {x: tw - 12, y: rowY + j * 22, 'text-anchor': 'end', fill: '#f6f4ee', class: 'tooltip-value'}, fmt(s.point.y, 5));
         });
         tooltip.setAttribute('visibility', 'visible');
       } else tooltip.setAttribute('visibility', 'hidden');
@@ -273,25 +304,26 @@
     16384: {hits: [79.53, 31.76], ce: [1.918298, 6.649621], latency: [101.271, 3304.879]}
   };
   function renderDense() {
-    const host = $('#dense-chart'), w = Math.max(280, host.clientWidth), small = w < 500, h = 210;
+    const host = $('#dense-chart'), w = chartWidth(host), small = w < 500, h = small ? 245 : 230;
     const key = state.denseMetric, values = historical[state.denseContext][key];
     const maximum = key === 'hits' ? 100 : key === 'ce' ? 8 : state.denseContext === 4096 ? 1000 : 4000;
     const unit = key === 'hits' ? '%' : key === 'ce' ? ' nats' : ' ms';
-    const left = small ? 62 : 100, right = small ? 63 : 93, plotW = w - left - right, baseline = 163;
+    const left = small ? 12 : 100, right = small ? 12 : 85, plotW = w - left - right, baseline = 168;
     host.replaceChildren(); host.style.minHeight = `${h}px`;
     const svg = add(host, 'svg', {viewBox: `0 0 ${w} ${h}`, role: 'img', 'aria-label': `At ${count(state.denseContext)} tokens, A1 ${values[0]}${unit} and A2 ${values[1]}${unit}. ${key === 'hits' ? 'Higher' : 'Lower'} is better.`});
-    for (let t = 0; t <= 4; t++) {
-      const v = maximum * t / 4, px = left + plotW * t / 4;
-      add(svg, 'line', {x1: px, x2: px, y1: 27, y2: baseline, class: 'chart-grid'});
-      add(svg, 'text', {x: px, y: baseline + 20, 'text-anchor': 'middle', style: 'font-size:9px'}, count(v));
+    const intervals = small ? 2 : 4;
+    for (let t = 0; t <= intervals; t++) {
+      const v = maximum * t / intervals, px = left + plotW * t / intervals;
+      add(svg, 'line', {x1: px, x2: px, y1: small ? 42 : 27, y2: baseline, class: 'chart-grid'});
+      add(svg, 'text', {x: px, y: baseline + 22, 'text-anchor': t === 0 ? 'start' : t === intervals ? 'end' : 'middle'}, count(v));
     }
     ['A1 dense', 'A2 sparse'].forEach((name, i) => {
-      const y = 55 + i * 67, bw = values[i] / maximum * plotW;
-      add(svg, 'text', {x: left - 10, y: y + 17, 'text-anchor': 'end', class: 'bar-label', style: `font-size:${small ? 9 : 11}px`}, name);
+      const y = (small ? 45 : 55) + i * 72, bw = values[i] / maximum * plotW;
+      add(svg, 'text', {x: small ? left : left - 10, y: small ? y - 10 : y + 18, 'text-anchor': small ? 'start' : 'end', class: 'bar-label'}, name);
       add(svg, 'rect', {x: left, y, width: bw, height: 25, fill: i ? colors.neutral : colors.a1});
-      add(svg, 'text', {x: left + bw + 8, y: y + 17, class: 'bar-value', style: `font-size:${small ? 10 : 12}px`}, `${fmt(values[i], key === 'hits' ? 2 : key === 'ce' ? 3 : 1)}${key === 'hits' ? '%' : ''}`);
+      add(svg, 'text', {x: small ? w - right : left + bw + 8, y: small ? y - 10 : y + 18, 'text-anchor': small ? 'end' : 'start', class: 'bar-value'}, `${fmt(values[i], key === 'hits' ? 2 : key === 'ce' ? 3 : 1)}${key === 'hits' ? '%' : ''}`);
     });
-    add(svg, 'text', {x: left + plotW / 2, y: h - 6, 'text-anchor': 'middle', class: 'axis-title'}, key === 'hits' ? 'TEACHER-FORCED TARGET HITS · %' : key === 'ce' ? 'PRESENT-REFERENCE CROSS-ENTROPY · NATS' : 'NATIVE FORWARD LATENCY · MILLISECONDS');
+    wrappedText(svg, {x: w / 2, y: h - 29, 'text-anchor': 'middle', class: 'axis-title'}, key === 'hits' ? 'TEACHER-FORCED TARGET HITS · %' : key === 'ce' ? 'PRESENT-REFERENCE CROSS-ENTROPY · NATS' : 'NATIVE FORWARD LATENCY · MILLISECONDS', w - 24);
     $('#dense-readout').innerHTML = `<span class="readout-coordinate">${count(state.denseContext)}-token context</span><span>${key === 'latency' ? `<b>${fmt(values[1] / values[0], 1)}×</b> observed A2 latency relative to A1` : key === 'hits' ? `<b>+${fmt(values[0] - values[1], 2)} percentage points</b> for A1` : `<b>${fmt(values[1] - values[0], 3)} nats</b> lower copy loss for A1`}</span>`;
   }
   function renderSources() {
