@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autoresearch: five epochs of hybrid language-model research</title>
+<style>
+:root{
+  /* Palette inherited from the figures, so page and plots read as one system.
+     The plots' orange #eb6834 and blue #2a78d6 are deepened here for text
+     contrast; the rule colour is the plots' own grid line. */
+  --ground:#fcfcfb; --raise:#f5f4f0; --ink:#14130f; --ink-2:#4a4740;
+  --muted:#6b6862; --rule:#e1e0d9; --rule-2:#cfcdc4;
+  --accent:#b8430f; --accent-mark:#eb6834; --rival:#1f5fae;
+  --good:#1f6f4a; --warn:#8a5a00;
+  --serif:Charter,"Bitstream Charter","Iowan Old Style","Source Serif Pro",Georgia,serif;
+  --sans:"Inter var",ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --measure:68ch;
+}
+@media (prefers-color-scheme:dark){
+  :root{--ground:#100f0d; --raise:#1a1815; --ink:#eeece6; --ink-2:#c2bfb6;
+        --muted:#8f8b82; --rule:#2b2925; --rule-2:#3b3833;
+        --accent:#f08a5f; --accent-mark:#eb6834; --rival:#6ea8ec;
+        --good:#5fbf8f; --warn:#d9a441;}
+}
+:root[data-theme="dark"]{--ground:#100f0d; --raise:#1a1815; --ink:#eeece6; --ink-2:#c2bfb6;
+  --muted:#8f8b82; --rule:#2b2925; --rule-2:#3b3833;
+  --accent:#f08a5f; --accent-mark:#eb6834; --rival:#6ea8ec;
+  --good:#5fbf8f; --warn:#d9a441;}
+:root[data-theme="light"]{--ground:#fcfcfb; --raise:#f5f4f0; --ink:#14130f; --ink-2:#4a4740;
+  --muted:#6b6862; --rule:#e1e0d9; --rule-2:#cfcdc4;
+  --accent:#b8430f; --accent-mark:#eb6834; --rival:#1f5fae;
+  --good:#1f6f4a; --warn:#8a5a00;}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--serif);font-size:17px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:oldstyle-nums proportional-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px 96px;
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+@media(min-width:1080px){.wrap{grid-template-columns:210px minmax(0,1fr);gap:56px;padding-top:8px}}
+
+/* ---- masthead: facts, not flourish ---- */
+header.mast{grid-column:1/-1;padding:64px 0 30px;border-bottom:2px solid var(--ink);margin-bottom:40px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 18px}
+h1.title{font-family:var(--serif);font-weight:600;font-size:clamp(30px,4.6vw,50px);
+  line-height:1.1;letter-spacing:-.015em;margin:0 0 18px;max-width:20ch;text-wrap:balance}
+.standfirst{font-size:19px;color:var(--ink-2);max-width:60ch;margin:0 0 30px}
+.ledger{display:flex;flex-wrap:wrap;gap:0;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:12px}
+.ledger div{padding:11px 24px 11px 0;margin-right:24px;border-right:1px solid var(--rule);
+  display:flex;flex-direction:column;gap:3px}
+.ledger div:last-child{border-right:0}
+.ledger b{font-size:19px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.ledger span{color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-size:10px}
+
+/* ---- side nav ---- */
+nav.toc{display:none}
+@media(min-width:1080px){
+  nav.toc{display:block;position:sticky;top:24px;align-self:start;max-height:calc(100vh - 48px);
+    overflow-y:auto;font-family:var(--mono);font-size:11.5px;line-height:1.5;
+    border-right:1px solid var(--rule);padding-right:18px}
+  nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:4px 0;
+    border-bottom:1px solid transparent}
+  nav.toc a:hover{color:var(--accent)}
+}
+
+main{min-width:0;max-width:var(--measure)}
+h2{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.22;letter-spacing:-.01em;
+  margin:64px 0 6px;padding-top:22px;border-top:1px solid var(--rule);text-wrap:balance}
+h3{font-family:var(--serif);font-weight:600;font-size:19.5px;margin:38px 0 4px;text-wrap:balance}
+h4{font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:30px 0 4px}
+p{margin:15px 0}
+strong{font-weight:650;color:var(--ink)}
+em{font-style:italic}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.84em;background:var(--raise);
+  border:1px solid var(--rule);border-radius:3px;padding:.1em .34em;word-break:break-word}
+blockquote{margin:26px 0;padding:18px 22px;background:var(--raise);
+  border-left:3px solid var(--accent-mark);font-size:17px}
+blockquote p{margin:0}
+ul,ol{margin:15px 0;padding-left:1.35em}
+li{margin:7px 0}
+li::marker{color:var(--muted);font-family:var(--mono);font-size:.85em}
+
+/* ---- tables: the data voice is monospace ---- */
+.scroll{overflow-x:auto;margin:26px 0;border:1px solid var(--rule);border-radius:2px}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px;
+  font-variant-numeric:tabular-nums lining-nums}
+th{text-align:left;padding:10px 14px;background:var(--raise);color:var(--ink-2);
+  font-weight:600;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  border-bottom:1px solid var(--rule-2);white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+td:first-child{color:var(--ink)}
+td code{background:none;border:0;padding:0}
+
+/* ---- figures break out of the measure ---- */
+figure{margin:40px 0;max-width:min(100%,900px)}
+@media(min-width:1080px){figure{width:calc(var(--measure) + 150px);max-width:none}}
+figure img{width:100%;height:auto;display:block;border:1px solid var(--rule);border-radius:2px;
+  background:#fcfcfb}
+figcaption{font-family:var(--sans);font-size:12.5px;line-height:1.5;color:var(--muted);
+  margin-top:10px;max-width:72ch}
+.fignum{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--accent);margin-right:7px}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<aside style="max-width:1124px;margin:20px auto 0;padding:0 28px;font-size:.85rem;color:var(--muted)"><a href="index.html">Back to the project report</a>. Evidence links open the source repository and require access.</aside>
+
+<div class="wrap">
+  <header class="mast">
+    <p class="eyebrow">Autoresearch · Sarvam AI · technical report</p>
+    <h1 class="title">Autoresearch: five epochs of hybrid language-model research</h1>
+    <p class="standfirst">Project-wide synthesis · epochs 1–5 · 9 November 2026</p>
+  </header>
+  <nav class="toc"><a href="#abstract">Abstract</a><a href="#1-scope-architectures-and-experimental-method">1. Scope, architectures and experimental method</a><a href="#2-campaign-trajectory-and-corrected-decisions">2. Campaign trajectory and corrected decisions</a><a href="#3-epoch-4-optimizer-gains-implementation-limits-and-the-a1-decision">3. Epoch 4: optimizer gains, implementation limits and the A1 decision</a><a href="#4-evaluation-discoveries-that-changed-the-standard-of-evidence">4. Evaluation discoveries that changed the standard of evidence</a><a href="#5-epoch-5-fresh-matched-training-and-mixed-final-results">5. Epoch 5: fresh matched training and mixed final results</a><a href="#6-final-recommendation-reproducibility-and-closure">6. Final recommendation, reproducibility and closure</a></nav>
+  <main><p><strong>Project synthesis · 9 November 2026 · Research closed 13 October 2026</strong></p>
+<h2 id="abstract">Abstract</h2>
+<p>This project investigated language-model blocks that combine fixed-state recurrent memory, compressed global attention and mixture-of-experts feed-forward layers. Five epochs moved from a 26-configuration small-model search through long-context training, numerical repairs, optimizer studies and sparse-attention experiments to a fresh, matched comparison at approximately 1.27B total parameters and 30B processed tokens per model.</p>
+<p>The retained reference is the A1 family: three KDA recurrent layers per output-gated dense MLA layer, with four experts and top-two routing. This is a practical continuation of the tested baseline, not a universally winning architecture. Earlier experiments trained models through 64K context and evaluated selected retrieval probes at 256K. The final experiment instead trained both models only at 4K and evaluated extrapolation through 32K; those capabilities must not be combined.</p>
+<p>In the final comparison, the HySparse2-style challenger improved some extrapolation and passkey results, while A1 performed better on several language-model, downstream and copying measurements. HySparse2 took 2.27 times the recorded training elapsed time. Both trained cached-decoding implementations failed numerical equivalence checks, leaving serving unvalidated. The project therefore closes without promoting a replacement architecture. Its durable contributions are the completed comparisons, corrected interpretations, implementation fixes and increasingly explicit evaluation controls.</p>
+<h2 id="1-scope-architectures-and-experimental-method">1. Scope, architectures and experimental method</h2>
+<p>Full attention retains token-specific keys and values, allowing direct access to earlier text at a growing memory cost. KDA uses content-dependent, channel-wise decay and delta-rule updates to maintain a fixed-size recurrent state. MLA compresses the information retained per token. Combining three KDA layers with one global MLA layer offered a useful compromise in the tested settings. “Dense A1” refers to its global attention; A1 still contains recurrent layers and sparsely routed MoE feed-forward layers.</p>
+<p>Two attention gates must be distinguished. The historical <strong>forget gate</strong> modifies attention scores. The later <strong>output gate</strong> scales the attention output. Their effects depended on scale and the surrounding block. Likewise, mixture-of-experts routing changes feed-forward computation; it is separate from sparse token selection in attention.</p>
+<p>Early searches held the model skeleton approximately fixed and aimed to match non-embedding parameter budgets within 0.5%, reallocating remaining parameters to feed-forward width. That compares complete budgeted designs, not a mixer in isolation. Historical “1.2B” labels generally describe non-embedding parameters. Epoch5 explicitly matches <strong>total</strong> parameters. Equal parameter counts do not imply equal activated work or FLOPs.</p>
+<p>Experiments used seeded token-window orders, architecture-specific learning-rate searches and recorded parent checkpoints. Matching also requires the corpus, mask, budget, batch, optimizer, precision and curriculum. The standard early large-model curriculum used 30B tokens at 4K, followed by 1.5B at 32K and 1.5B at 64K; extension mixed PG19 and FineWeb-Edu 70/30. Pilot-optimal learning rates sometimes changed at the full budget or next scale.</p>
+<p>Evaluation separated next-token loss, synthetic copying, planted-key retrieval, downstream tasks and execution cost. Historical dense recall is <code>1 - second-copy loss / first-copy loss</code>, not accuracy. Passkey success measures recovery of one distinctive item, not general long-document reasoning. Historical MoE validation included an auxiliary routing loss; later raw-CE evaluations exclude it. Dense and MoE objective values cannot silently be compared as isolated language-model CE.</p>
+<p>Most large challenger endpoints have one training seed. Repeated evaluation draws are not independent model replications. Registered numerical thresholds and saved identities improve auditability, but do not establish causal mechanisms, population significance or unseen-source generalization.</p>
+<h2 id="2-campaign-trajectory-and-corrected-decisions">2. Campaign trajectory and corrected decisions</h2>
+<div class="scroll"><table><thead><tr><th>Epoch</th><th>Main question</th><th>Decision carried forward</th></tr></thead><tbody><tr><td>1</td><td>Which mixer and hybrid pattern merit scaling?</td><td>Carry the KDA/MLA hybrid and staged context extension forward; small-model rankings remain provisional</td></tr><tr><td>2</td><td>Why did Comba fail, and can recurrent memory be improved?</td><td>Repair the kernel; retain KDA as the baseline while documenting retrieval trade-offs</td></tr><tr><td>3</td><td>Does the block transfer to MoE?</td><td>Replace the global forget gate with an output gate for subsequent MoE work</td></tr><tr><td>4</td><td>Can optimization or learned sparse global attention improve A1?</td><td>Retain original dense MLA, use the tuned optimizer recipe, stop the tested sparse branch</td></tr><tr><td>5</td><td>Does a fresh HySparse2-style recipe replace A1 at matched total size and budget?</td><td>Preserve both endpoints; retain A1 as reference without declaring an overall quality winner</td></tr></tbody></table></div>
+<h3 id="epoch-1-a-useful-hybrid-with-scale-dependent-rankings">Epoch 1: a useful hybrid, with scale-dependent rankings</h3>
+<p>The search began with 26 mixer configurations at 85M, then promoted candidates to 300M and 1.2B. At 85M, forget-gated MLA improved reported loss from 2.8320 to 2.7889 at the same analytic cache size. One global layer per three recurrent layers preserved more retrieval than more aggressive attention dilution in the tested models.</p>
+<p>Context extension mattered: the 300M KDA block&#x27;s recall across an 8,192-token gap rose from 0.213 at the bulk endpoint to 0.531 after 32K extension and 0.678 after 64K extension. Nevertheless, better short-context loss did not reliably select a better extension parent. Removing positional information or reducing latent rank could preserve one measurement while damaging another.</p>
+<p>The original interpretation of five failed Comba 64K attempts was subsequently withdrawn. The failure was an implementation defect, not evidence that the architecture could not train. Likewise, an old “12.4σ” characterization divided a loss difference by a registered decision threshold; it was not conventional statistical significance. The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/tech_report/report.md">corrected epoch1 report</a> preserves the historical tables while revising those conclusions.</p>
+<h3 id="epoch-2-numerical-repair-exposed-a-real-trade-off">Epoch 2: numerical repair exposed a real trade-off</h3>
+<p>Comba failed on a PG19 region containing 360,448 repeated tokens. BF16 rounding let a normalized inner product exceed its mathematical bound: a measured value around 1.0026 compounded across chunks until overflow. Clamping the intermediate to its bound allowed the formerly failing run to complete all 5,722 steps. The patch reused the stock backward, so its gradient outside the bound is not the exact derivative of the clamped expression.</p>
+<div class="scroll"><table><thead><tr><th>1.2B endpoint trained through 64K</th><th>Validation loss</th><th>Recall, gap 32,768</th><th>256K passkey, five evaluation draws</th></tr></thead><tbody><tr><td>Original unmasked KDA</td><td>2.5025</td><td>0.333</td><td>0.600 ± 0.000</td></tr><tr><td>Later masked KDA control</td><td>2.5024</td><td>0.348</td><td>0.560 ± 0.037</td></tr><tr><td>Repaired Comba, seed 2345</td><td>2.5446</td><td>0.199</td><td>1.000 ± 0.000</td></tr></tbody></table></div>
+<p>The mask changed extension window order; these rows are distinct recipes, not interchangeable baseline columns. KDA retained better text loss and dense recall, while Comba retrieved a single key better.</p>
+<p>Fixed or content-independent decay, preconditioned memory, hierarchical memory and mixed decay granularity did not establish an overall replacement under their tested budgets. A preconditioning improvement at 32K did not become a resolved 64K advantage and came with worse passkey retrieval. These are bounded negative results, not impossibility claims.</p>
+<p>Later audits also invalidated the original Comba redundancy explanation: the intervention had skipped most generation forwards. Repaired early-layer interventions still change convolution boundaries and kernel shapes, so they do not isolate recurrent memory alone. The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch2/tech_report/report.md">epoch2 report</a> records both the experiments and these corrections.</p>
+<h3 id="epoch-3-the-global-gate-interacted-with-moe">Epoch 3: the global gate interacted with MoE</h3>
+<p>Four-expert, top-two routing changed the preferred block. The forget-gate MoE arm lost passkey retrieval during 32K extension, including lengths it had previously handled. The output-gate arm retained substantially more retrieval.</p>
+<div class="scroll"><table><thead><tr><th>MoE endpoint trained through 64K</th><th>Validation LM + auxiliary</th><th>Recall, gap 32,768</th><th>256K passkey</th></tr></thead><tbody><tr><td>Forget-gated MLA</td><td>2.5509</td><td>0.361</td><td>0.000</td></tr><tr><td>Output-gated MLA</td><td>2.5378</td><td>0.5475</td><td>0.800</td></tr></tbody></table></div>
+<p>Each arm had one training seed, and parameter allocation was slightly different. Output-gate passkey was also non-monotonic: 1.00 at 64K, 0.40 at 128K and 0.80 at 256K. Low measured attention mass on the key was consistent with an addressing problem, but did not establish its sole cause or rule out routing and readout interactions. The useful decision was to carry <code>kda,kda,kda,mla_og</code> forward. The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch3/tech_report/report.md">epoch3 report</a> contains the matched recipes and unresolved mechanisms.</p>
+<h2 id="3-epoch-4-optimizer-gains-implementation-limits-and-the-a1-decision">3. Epoch 4: optimizer gains, implementation limits and the A1 decision</h2>
+<p>At approximately 300M non-embedding parameters, the one-seed 1.5B-token bulk bracket favored HybridMuon: the best reported AdamW objective was 2.7739 at LR 0.0015, versus 2.7281 for Muon at 0.003; a clipped canonical rerun reached 2.7265. HybridMuon applies Muon to eligible hidden matrices and AdamW to embeddings, routers and other parameters. Its implementation and learning-rate tuning are part of the recipe.</p>
+<p>Selecting extension LR solely by loss failed. LR 0.0024 reached objective 2.6023 but zero on the historical 32K and 128K needle probes. LR 0.0012 reached 2.6835 while retaining 1.00 on those probes, and was selected. These limited draws support that endpoint decision, not a retrieval guarantee.</p>
+<p>Precision instrumentation found that small updates to BF16-stored parameters could round away, particularly norm gains and KDA <code>A_log</code>. FP32 storage enabled updates but did not demonstrate a quality gain in the matched 381-update continuation: final objectives were 2.6972 and 2.6969, comparable to the initial precision-dependent offset. Peak memory increased from 25.33 to 41.97 GB and throughput fell approximately 5%. The historical BF16 reference remained explicit.</p>
+<p>Engineering fixes were consequential. MoE auxiliary gradients needed to survive checkpointing, and empty experts needed to remain in the distributed graph. A later checkpointing retention bug had inflated memory: changing the implementation reduced the measured 1.2B/64K peak from roughly 110 to 33.3 GB. Those are implementation gains, not architecture-quality improvements.</p>
+<p>The final A1 checkpoint has 333,939,600 total parameters, 24 layers, width 1,024, 18 KDA layers and six output-gated original MLA layers, with four experts and top-two routing. A2 replaced global attention with learned sparse selection. A3 separately adapted an indexer under another objective and budget. Selector leakage, initialization and recovery problems required corrections; A2&#x27;s recovered history does not certify equal actual processed work with A1.</p>
+<p>The final shared synthetic-copy evaluation froze three evaluation seeds, two context lengths and present/absent-reference conditions. Each endpoint scored 1,524 targets. A1 beat A2 on every seed at both lengths:</p>
+<div class="scroll"><table><thead><tr><th>Context</th><th>A1 present-reference CE / target hits</th><th>A2 present-reference CE / target hits</th></tr></thead><tbody><tr><td>4,096</td><td>1.308914 / 87.40%</td><td>4.097597 / 54.07%</td></tr><tr><td>16,384</td><td>1.918298 / 79.53%</td><td>6.649621 / 31.76%</td></tr></tbody></table></div>
+<p>These are teacher-forced target predictions, not free-running copying accuracy. Independent saved-array scoring reproduced normalization and hits. A2 was also approximately 11.5 times slower at 4K and 32.6 times slower at 16K in the retained native timing samples; fixed order and implementation overhead limit interpretation. This justified retaining the A1 endpoint, without isolating sparsity as the cause.</p>
+<p>The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch4/tech_report/report.md">epoch4 report</a>, <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch4/tech_report/final_recipe.json">final recipe</a> and <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch4/gates/a1_a2_minimal_validation/summary.json">validation evidence</a> define that result. Configured 256K length, experimental 1M paths and a proposed 1.9B scale-up are not validated deployment capabilities.</p>
+<h2 id="4-evaluation-discoveries-that-changed-the-standard-of-evidence">4. Evaluation discoveries that changed the standard of evidence</h2>
+<p>Several findings changed how later experiments were conducted. Trained outputs could depend on forward tensor shape, making old variable-shape prefix curves insufficient to isolate context benefit. Epoch5 therefore held both scored targets and tensor shape fixed. Present/absent-reference controls and positive controls helped detect insensitive or broken instruments. Selected-row future-token checks remained scoped checks, not proofs about every position or arbitrary padding.</p>
+<p>Data provenance was also narrower than convenient dataset labels implied. Epoch4 reproduced token correspondence for selected FineWeb records, but a full-cohort native acquisition stopped on a writer-identity error; there is no completed healthy-versus-collapsed FineWeb NLL result from that branch. Five dependent PG19 records were descriptive observations. Book-QA source and exposure questions remained unresolved. Saved hashes establish file identity, not population representativeness or independent source separation.</p>
+<p>The repository consequently distinguishes execution completion, numerical correctness, measured quality and interpretation. An evaluator can finish successfully while recording a failed task. A source audit or CPU test cannot substitute for trained-model behavior. The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/tech_report/EVALUATION.md">evaluation guide</a> and per-epoch reports preserve the instruments and their limits.</p>
+<h2 id="5-epoch-5-fresh-matched-training-and-mixed-final-results">5. Epoch 5: fresh matched training and mixed final results</h2>
+<p>The final experiment compared a fresh A1-family model with a HySparse2-style challenger; it did not resume the historical 300M checkpoint.</p>
+<div class="scroll"><table><thead><tr><th>Property</th><th>Fresh A1</th><th>HySparse2-style</th></tr></thead><tbody><tr><td>Total parameters</td><td>1,269,005,856</td><td>1,264,754,368</td></tr><tr><td>Layers / width</td><td>24 / 2,048</td><td>49 / 1,024</td></tr><tr><td>Feed-forward experts</td><td>Four, top two</td><td>Four, top two</td></tr><tr><td>Selected peak LR</td><td>0.003</td><td>0.0015</td></tr><tr><td>Completed updates</td><td>114,440</td><td>114,440</td></tr><tr><td>Processed tokens</td><td>29,999,759,360</td><td>29,999,759,360</td></tr></tbody></table></div>
+<p>HySparse2 uses a 25-layer self decoder and 24-layer cross decoder, bridging independent group KV from the self full-attention layer&#x27;s input and sharing KV and selected indices within groups. Local windows contain 128 tokens; global selection uses a 1,024-token budget. Mean head probabilities determine selection. The implementation omits mHC, MTP, the full large-model expert recipe and optimized sparse kernels; it is not a reproduction of the published 80B model.</p>
+<p>Both arms used seed 1234, the same FineWeb-Edu token/window order, 4,096-token training context, 262,144 tokens per update, eight B200 GPUs, FP32 parameter/state storage with BF16 autocast and HybridMuon. Neither used QK weight clipping. The corpus repeats, so 30B processed tokens are not 30B unique tokens. Physical batching differed while preserving 64 logical windows and the per-sequence auxiliary objective. Depth, activated work and floating-point trajectories were not matched.</p>
+<p>Each arm received the same three-point LR grid and 256 updates per pilot; the fixed terminal raw-CE rule selected the rates above. Main runs started fresh. This provides equal bounded tuning opportunity, not globally optimal hyperparameters.</p>
+<p>Final training-validation raw CE was 2.252709 for A1 and 2.254674 for HySparse2, with auxiliary losses reported separately. There is no training-seed uncertainty estimate for that small difference. Subsequent fixed evaluation used its own matched windows:</p>
+<div class="scroll"><table><thead><tr><th>Fixed 4K measurement</th><th>A1</th><th>HySparse2</th></tr></thead><tbody><tr><td>FineWeb raw CE, 262,144 targets</td><td>2.188247</td><td>2.181562</td></tr><tr><td>PG19 raw CE, 262,144 targets</td><td>2.739904</td><td>2.789053</td></tr><tr><td>Book-QA raw CE, 262,144 targets</td><td>2.060498</td><td>2.136116</td></tr><tr><td>LAMBADA greedy exact, first 1,000 cases</td><td>470 / 1,000</td><td>447 / 1,000</td></tr><tr><td>HellaSwag length-normalized, first 1,000 cases</td><td>450 / 1,000</td><td>439 / 1,000</td></tr><tr><td>Passkey, three prompt lengths and depths</td><td>40 / 45</td><td>45 / 45</td></tr></tbody></table></div>
+<p>LAMBADA generation used the gold continuation&#x27;s token count. These finite subsets and scoring conventions should not be equated with differently configured benchmark reports.</p>
+<p>Both models improved with additional visible context in the matched-target 4K curves; A1&#x27;s reduction was larger on all three corpora. After staged 8K, 16K and 32K full-forward checks, a separate eight-window-per-corpus cohort evaluated the same final 256 targets at varying prefixes. At the longest prefix, HySparse2 had lower CE by 0.211813 on FineWeb, 0.131455 on PG19 and 0.321870 on Book-QA. However, both models were worse there than at a 4,096-token prefix. The challenger mainly degraded less during extrapolation; this was not monotonic benefit from more context.</p>
+<p>Copying remained mixed. A1 had lower natural-copy loss at all four 4K gaps; HySparse2 won random copying at the longest 4K gap. Across a 32,512-token gap, natural-copy loss favored HySparse2, 1.975261 versus 2.533112, while random-copy loss favored A1, 9.626509 versus 10.310154. At the 32,763-token passkey prompt, hits were 10/15 and 15/15 respectively. Small depth-dependent substring-scored cohorts do not establish general retrieval superiority.</p>
+<p>All seven requested 4K quality categories and all four shared 32K quality categories completed. <strong>Both cache/decode checks failed.</strong> A1 matched prefill but failed all 32 decode comparisons; HySparse2 failed prefill and all 32 decode comparisons, at frozen absolute/relative tolerances of 0.01. Maximum logit differences were 0.687500 and 1.402344. Smaller observed HySparse2 retained cache storage is therefore not a validated memory-quality trade-off, and instrumented timings establish no serving advantage. Full-forward quality remains a separate measurement.</p>
+<p>Recorded training attempts took 98.52 hours for A1 and 223.89 hours for HySparse2, a 2.27-fold ratio under these implementations. Scheduler accounting gives 788.280000 and 1,791.228889 allocated GPU-hours for the main jobs. Including the three final GPU evaluation jobs yields <strong>2,582.175833 GPU-hours</strong>. This excludes tuning, earlier diagnostics and failed setup work; it is not an all-project cost total.</p>
+<p>The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/FINAL_REPORT.md">epoch5 final report</a> provides every category, complete curves and limitations. The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/results/20261013/artifacts/matched-final-report-v1/output/comparison.json">final comparison</a>, <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/results/20261013/artifacts/a1-main-30b-lr0003/output/train/summary-0-cc5b385a91ba.json">A1 training summary</a>, <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/results/20261013/artifacts/hysparse-main-30b-selected-v1/output/train/summary-0-a114f444c14d.json">HySparse2 training summary</a> and <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/results/20261013/scheduler-observation.json">scheduler record</a> retain the underlying measurements.</p>
+<h2 id="6-final-recommendation-reproducibility-and-closure">6. Final recommendation, reproducibility and closure</h2>
+<p>Retain the A1 family as the existing research reference: three KDA layers per output-gated original dense MLA layer, four experts with top-two routing, and separately tuned HybridMuon. Preserve the distinction between the historical BF16/QK-clipped epoch4 recipe and the fresh FP32-stored, unclipped epoch5 comparison. Do not adopt HySparse2 on this run: quality is mixed, observed training time is higher, and trained serving remains unvalidated for both arms.</p>
+<p>This recommendation does not imply uniform task superiority or a population ranking. The project does not establish transfer to 100B/1T models, production 128K/1M serving, unseen-source generalization, optimized sparse-kernel performance or a single causal explanation for the observed differences. Earlier corrected reports take precedence over superseded interpretations in chronological logs.</p>
+<p>Implementation entry points are <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/code/arch.py">model architectures</a>, <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/code/train.py">training</a>, <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/code/muon.py">HybridMuon</a>, <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/campaign.py">epoch5 campaign</a> and <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/evaluate.py">epoch5 evaluation</a>. The five linked epoch reports supply detailed recipes, findings and evidence. The <a href="https://github.com/rahul-sarvam/autoresearch/blob/epoch5/epoch5/results/20261013/README.md">final evidence archive</a> preserves training curves, per-case results, failures, source snapshots and binding verification. Checkpoints, large arrays and corpora remain external with recorded identities; the archive is not an independent GPU rerun.</p>
+<p>Training, final evaluation and reporting finished by 3 October. The owner closed the project on 13 October, with no active recorded campaign jobs and no queued follow-up work. Historical plans remain provenance, not an execution queue. This synthesis completes the project-wide report while leaving the historical reports intact.</p></main>
+</div>
+
+</body>
+</html>
