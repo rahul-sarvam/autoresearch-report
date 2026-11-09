@@ -1,0 +1,41 @@
+/* Self-hosted Sarvam fonts. Provenance and conversion checks: README.md. */
+
+@font-face {
+  font-family: "Season Mix";
+  src: url("sarvam-season-mix-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Matter";
+  src: url("sarvam-matter-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Matter";
+  src: url("sarvam-matter-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Matter";
+  src: url("sarvam-matter-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Matter SemiMono";
+  src: url("sarvam-matter-semimono-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

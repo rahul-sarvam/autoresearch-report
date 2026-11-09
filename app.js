@@ -313,7 +313,7 @@
     const span = document.documentElement.scrollHeight - innerHeight;
     const p = Math.min(100, Math.max(0, scrollY / Math.max(1, span) * 100));
     $('#reading-progress').style.width = `${p}%`;
-    $('#reading-label').textContent = p < 3 ? 'At the beginning' : p > 97 ? 'The record continues.' : `${Math.round(p)}% through the report`;
+    $('#reading-label').textContent = p < 3 ? 'At the beginning' : p > 97 ? 'End of report.' : `${Math.round(p)}% through the report`;
   }
   controls('data-architecture', value => { state.architecture = value; state.layer = value === 'a1' ? 3 : 12; renderArchitecture(); });
   controls('data-gate', value => { state.gate = value; renderGate(); });

@@ -1,4 +1,4 @@
-# Autoresearch: five epochs of hybrid language-model research
+# Arch Ablations: five epochs of hybrid language-model research
 
 **Project synthesis · 9 November 2026 · Research closed 13 October 2026**
 

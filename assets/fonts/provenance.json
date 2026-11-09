@@ -1,0 +1,78 @@
+{
+  "source_archive": "sarvam-slide-design.zip",
+  "source_archive_sha256": "25db56468a3fe3ab0612df0a39223bd47c46fa1be9c63dcbdee45e411b5260b9",
+  "prepared_at_utc": "2026-11-09T14:26:20.493810+00:00",
+  "conversion": {
+    "fontTools": "4.68.0",
+    "Brotli": "1.2.1",
+    "subsetting": false,
+    "timestamp_recalculation": false
+  },
+  "fonts": [
+    {
+      "source_entry": "fonts/SeasonMix-Regular.otf",
+      "source_sha256": "35adf92080e8d9c5c40d78e24f03ee86160a13bf59f39af0fd0fa17e588e6ce0",
+      "source_bytes": 109744,
+      "file": "sarvam-season-mix-regular.woff2",
+      "family": "Season Mix",
+      "css_weight": 400,
+      "source_os2_weight_preserved": 420,
+      "sha256": "9516685101f027a682eb753d9cdeadbab849d29d29466cec8d5e9c13c8bd102e",
+      "bytes": 50104,
+      "glyphs": 616,
+      "validation": "Full glyph order, cmap, horizontal metrics, UPEM, OS/2 weight and every glyph outline match source."
+    },
+    {
+      "source_entry": "fonts/MatterRegular.otf",
+      "source_sha256": "270b70182e1adead8173695268f03d4c422fc3c997fd8984bcadc87df5dcc43c",
+      "source_bytes": 246884,
+      "file": "sarvam-matter-regular.woff2",
+      "family": "Matter",
+      "css_weight": 400,
+      "source_os2_weight_preserved": 430,
+      "sha256": "ddf6c589d9f033e23363b7c6f5a4966e8d132f41bdbc6b051bc5e257cb214cb1",
+      "bytes": 84300,
+      "glyphs": 1132,
+      "validation": "Full glyph order, cmap, horizontal metrics, UPEM, OS/2 weight and every glyph outline match source."
+    },
+    {
+      "source_entry": "fonts/MatterMedium.otf",
+      "source_sha256": "c45f4c1a78ff94b74691f8be88d39bfaed780d718010f534827eeb8f816e62d0",
+      "source_bytes": 248020,
+      "file": "sarvam-matter-medium.woff2",
+      "family": "Matter",
+      "css_weight": 500,
+      "source_os2_weight_preserved": 570,
+      "sha256": "9b4cf05e3e0670bb730c9e7b17fbeffb1f58b2cce678ff403bc038af62ff341f",
+      "bytes": 85504,
+      "glyphs": 1132,
+      "validation": "Full glyph order, cmap, horizontal metrics, UPEM, OS/2 weight and every glyph outline match source."
+    },
+    {
+      "source_entry": "fonts/MatterSemiBold.ttf",
+      "source_sha256": "b8d175b752ebd9512874b768c4d1a985759a790b583ff12862f07c03af42c53b",
+      "source_bytes": 309024,
+      "file": "sarvam-matter-semibold.woff2",
+      "family": "Matter",
+      "css_weight": 600,
+      "source_os2_weight_preserved": 670,
+      "sha256": "04e3cff4afec5a9724df4a4f7fb8d09f7025a2715724e1d145bd97eabf656b26",
+      "bytes": 95644,
+      "glyphs": 1132,
+      "validation": "Full glyph order, cmap, horizontal metrics, UPEM, OS/2 weight and every glyph outline match source."
+    },
+    {
+      "source_entry": "fonts/MatterSemiMonoRegular.otf",
+      "source_sha256": "70c1bca974770d1c4ca32403678ecd5ef9940f45e53cd26c406e54a54ff9fc41",
+      "source_bytes": 248144,
+      "file": "sarvam-matter-semimono-regular.woff2",
+      "family": "Matter SemiMono",
+      "css_weight": 400,
+      "source_os2_weight_preserved": 430,
+      "sha256": "34127e6911445112ed5a2489e58f64e4804403a58b443f072ec6b2b1c545d0e7",
+      "bytes": 79240,
+      "glyphs": 1132,
+      "validation": "Full glyph order, cmap, horizontal metrics, UPEM, OS/2 weight and every glyph outline match source."
+    }
+  ]
+}

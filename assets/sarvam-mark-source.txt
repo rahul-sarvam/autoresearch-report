@@ -1,0 +1,9 @@
+Sarvam black monogram supplied in the user-provided design kit
+Source archive: sarvam-slide-design.zip
+Archive SHA256: 25db56468a3fe3ab0612df0a39223bd47c46fa1be9c63dcbdee45e411b5260b9
+Archive entry: assets/sarvam-monogram-black.svg
+Prepared (UTC): 2026-11-09T14:26:20.493810+00:00
+Asset SHA256: d5fcbb128a3b6587f94a25c25fb8484cb3f9e73c3e8bbfad9a8e70e857d1f9be
+Bytes: 23124
+Intrinsic dimensions: 1200 x 1200; aspect ratio 1:1.
+Saved unchanged; no recoloring, cropping or path edits.

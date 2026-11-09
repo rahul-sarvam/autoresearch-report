@@ -4,21 +4,21 @@
   "evidence_access": "Source repository access is required for evidence links.",
   "sources": {
     "tech_report/PROJECT_REPORT.md": {
-      "sha256": "996294e627053775a8b5eb15eb85f6c13fb130297e18dd2b9cc99b8c397a82f6",
-      "bytes": 20884
+      "sha256": "20a727802890089c29476b54adb9fb04bc9a39031f58dd5db8970a86911d1d67",
+      "bytes": 20886
     },
     "tech_report/PROJECT_REPORT.html": {
-      "sha256": "4f43a5f370106f53e15b725b3a1ece032660c3b9ec92616c5817a0cc643d245b",
-      "bytes": 30383
+      "sha256": "8f02bb17e1b2402cca0763f1e33847304712973e2763fceb514800c09f151b9c",
+      "bytes": 30371
     },
     "tech_report/PROJECT_REPORT.pdf": {
-      "sha256": "fabc7bcb1e4a520a0f58a0711348aaa9c932a30bacff5767569394c8b892ebb6",
-      "bytes": 41429
+      "sha256": "e608929fc3cb115ed919fe98a3e0938007c9796db2ef0ef611eb8d5967c609d0",
+      "bytes": 41390
     }
   },
   "renderer_receipt": {
     "path": "tech_report/PROJECT_REPORT.build.json",
-    "sha256": "e241e82ab35f7b4d9f5b98a9f5e82465c75c6edd4e8dbec988fee5587d3b51f4",
+    "sha256": "be9cfd20af358ead33da571f32272841bf8b34dfeeb3d1986f06911f384e24e1",
     "bytes": 801
   },
   "outputs": {
@@ -27,16 +27,16 @@
       "bytes": 121713
     },
     "report.md": {
-      "sha256": "effaa745ff2e6a374d81209faacfdbd985dc769d86b9081812f35d8b2a53ae76",
-      "bytes": 21886
+      "sha256": "42a8845def3c36752b27e2bc2466e9377f5a23b0d903835db0656afd8eeeba44",
+      "bytes": 21888
     },
     "report.html": {
-      "sha256": "eaa1e69df4f42baf20f2d759cff8f458d0be0dfa3b19e4a7003661a533b9123b",
-      "bytes": 31611
+      "sha256": "dcb661d74c8d12384f05ca12697d0d616686f9a3f8fedab2afbc4d7bce35a0df",
+      "bytes": 31599
     },
     "report.pdf": {
-      "sha256": "fabc7bcb1e4a520a0f58a0711348aaa9c932a30bacff5767569394c8b892ebb6",
-      "bytes": 41429
+      "sha256": "e608929fc3cb115ed919fe98a3e0938007c9796db2ef0ef611eb8d5967c609d0",
+      "bytes": 41390
     }
   }
 }

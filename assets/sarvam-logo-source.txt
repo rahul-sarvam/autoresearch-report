@@ -1,0 +1,7 @@
+Sarvam AI official black wordmark
+Source asset: https://assets.sarvam.ai/assets/brand/logos/sarvam-wordmark-black.svg
+Official usage page: https://www.sarvam.ai/brand-guidelines
+Retrieved (UTC): 2026-11-09T14:18:22.794950+00:00
+SHA256: d0fde8af1b0fdb4991a708abbf8089544daa1acde4e23eef38a69a139d3a4a15
+Bytes: 3091
+Asset saved unchanged. Black wordmark intended for a light background; preserve aspect ratio and clear space.

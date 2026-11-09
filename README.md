@@ -1,15 +1,21 @@
-# Autoresearch: the interactive technical report
+# Arch Ablations
 
 **[Read the published report](https://rahul-sarvam.github.io/autoresearch-report/)**
 
-A visual synthesis of five epochs of hybrid language-model research. The site
+A standalone article on five research campaigns in hybrid language-model architectures.
+It defines the terminology and metrics, explains each experimental setup, and
+connects the observations to their interpretation and limitations. The site
 includes explorable architecture diagrams, recorded training curves, quality
 comparisons, context-length curves, passkey depth results and compute accounting.
 The research closed on 13 October 2026; publication adds no experiment.
 
 The page is plain HTML, CSS and JavaScript with local fonts and figure data.
+Branding uses the official Sarvam wordmark and the supplied Sarvam design kit’s
+Season Mix and Matter typefaces; asset provenance is recorded under `assets/`.
 There are no runtime services, tracking scripts or external font requests.
-The complete report is available as `report.pdf`, `report.html` and `report.md`.
+The concise companion technical synthesis is available as `report.pdf`,
+`report.html` and `report.md`. The article itself includes the context needed
+to follow the experiments without first reading that synthesis.
 Original evidence links require access to the private research repository.
 
 ## Rebuild in the research repository
